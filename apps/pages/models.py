@@ -62,6 +62,17 @@ class Income(models.Model):
     date = models.DateField(auto_now=True)
     procedure = models.ForeignKey(Procedure, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    was_paid = models.CharField(
+        max_length=10,
+        choices=[
+            ('debit', 'Tarjeta de Débito'),
+            ('credit', 'Tarjeta de Crédito'),
+            ('cash', 'Efectivo'),
+            ('transfer', 'Transferencia'),
+            ('check', 'Cheque')
+        ],
+        default='cash'
+    )
     is_facturable = models.BooleanField(default=False)
 
     def __str__(self):
