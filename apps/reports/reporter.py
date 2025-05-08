@@ -2,7 +2,7 @@ import csv
 from django.db.models import Sum, F
 from django.utils.timezone import now, timedelta
 from dateutil.relativedelta import relativedelta
-from apps.incomes.models import Income
+from apps.pages.models import Income
 
 
 def obtener_reporte_ingresos(periodo="semanal"):
@@ -29,6 +29,15 @@ def obtener_reporte_ingresos(periodo="semanal"):
         }
         for entry in reporte_query
     ]
+
+   # Calcular el gran total
+    gran_total = sum(entry['total_amount'] for entry in reporte_query)
+
+    # Agregar el gran total al reporte
+    reporte.append({
+        'Tipo de Pago': 'Gran Total',
+        'Total Ingresos': gran_total
+    })
 
     return {
         'periodo': periodo,

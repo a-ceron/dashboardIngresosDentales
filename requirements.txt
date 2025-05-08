@@ -14,6 +14,7 @@ requests==2.32.3
 pandas==2.2.3
 graphviz==0.20.3
 astor==0.8.1 
+reportlab
 
 # AI
 anthropic==0.34.2
