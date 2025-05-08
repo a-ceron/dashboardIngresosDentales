@@ -166,7 +166,34 @@
         </div>
         <!-- [ Recent Users ] end -->
     </div>
-      <!-- [ Main Content ] end -->
+        <!-- Botón flotante -->
+        <div class="position-fixed" style="bottom: 100px; right: 50px; z-index: 1050;">
+            <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" 
+                    style="width: 65px; height: 65px;" data-bs-toggle="modal" data-bs-target="#myModal">
+                <i data-feather="plus"></i>
+            </button>
+        </div>
+
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="myModalLabel">Formulario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="/api/Ingresos/">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <div class="text-end mt-3">
+                                <button type="submit" class="btn btn-primary">Enviar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
   </div>
 
