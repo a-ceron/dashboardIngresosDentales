@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import os, random, string, inspect
+import os
+import random
+import string
+import inspect
 from pathlib import Path
 from dotenv import load_dotenv
 from str2bool import str2bool
@@ -28,17 +31,18 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'Super_Secr3t_9999')
 
 # Enable/Disable DEBUG Mode
 DEBUG = str2bool(os.environ.get('DEBUG'))
-#print(' DEBUG -> ' + str(DEBUG) ) 
+# print(' DEBUG -> ' + str(DEBUG) )
 
 ALLOWED_HOSTS = ['*']
 
 # Add here your deployment HOSTS
-CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://localhost:5085', 'http://127.0.0.1:8000', 'http://127.0.0.1:5085']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://localhost:5085',
+                        'http://127.0.0.1:8000', 'http://127.0.0.1:5085']
 
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:    
+if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # Application definition
@@ -66,8 +70,8 @@ INSTALLED_APPS = [
     "apps.charts",
 
     # Tooling API-GEN
-    'rest_framework',            # Include DRF           # <-- NEW 
-    'rest_framework.authtoken',  # Include DRF Auth      # <-- NEW     
+    'rest_framework',            # Include DRF           # <-- NEW
+    'rest_framework.authtoken',  # Include DRF Auth      # <-- NEW
 ]
 
 MIDDLEWARE = [
@@ -83,7 +87,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
-HOME_TEMPLATES = os.path.join(BASE_DIR, 'templates') 
+HOME_TEMPLATES = os.path.join(BASE_DIR, 'templates')
 
 TEMPLATES = [
     {
@@ -106,23 +110,23 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DB_ENGINE   = os.getenv('DB_ENGINE'   , None)
-DB_USERNAME = os.getenv('DB_USERNAME' , None)
-DB_PASS     = os.getenv('DB_PASS'     , None)
-DB_HOST     = os.getenv('DB_HOST'     , None)
-DB_PORT     = os.getenv('DB_PORT'     , None)
-DB_NAME     = os.getenv('DB_NAME'     , None)
+DB_ENGINE = os.getenv('DB_ENGINE', None)
+DB_USERNAME = os.getenv('DB_USERNAME', None)
+DB_PASS = os.getenv('DB_PASS', None)
+DB_HOST = os.getenv('DB_HOST', None)
+DB_PORT = os.getenv('DB_PORT', None)
+DB_NAME = os.getenv('DB_NAME', None)
 
 if DB_ENGINE and DB_NAME and DB_USERNAME:
-    DATABASES = { 
-      'default': {
-        'ENGINE'  : 'django.db.backends.' + DB_ENGINE, 
-        'NAME'    : DB_NAME,
-        'USER'    : DB_USERNAME,
-        'PASSWORD': DB_PASS,
-        'HOST'    : DB_HOST,
-        'PORT'    : DB_PORT,
-        }, 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.' + DB_ENGINE,
+            'NAME': DB_NAME,
+            'USER': DB_USERNAME,
+            'PASSWORD': DB_PASS,
+            'HOST': DB_HOST,
+            'PORT': DB_PORT,
+        },
     }
 else:
     DATABASES = {
@@ -173,7 +177,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-#if not DEBUG:
+# if not DEBUG:
 #    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
@@ -186,15 +190,15 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # ### DYNAMIC_DATATB Settings ###
 DYNAMIC_DATATB = {
-    # SLUG -> Import_PATH 
-    'product'  : "apps.pages.models.Product",
+    # SLUG -> Import_PATH
+    'Ingresos': "apps.pages.models.Income",
 }
 ########################################
 
 # Syntax: URI -> Import_PATH
 DYNAMIC_API = {
-    # SLUG -> Import_PATH 
-    'product'  : "apps.pages.models.Product",
+    # SLUG -> Import_PATH
+    'Ingresos': "apps.pages.models.Income",
 }
 
 REST_FRAMEWORK = {
