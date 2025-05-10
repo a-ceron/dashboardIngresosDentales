@@ -1,3 +1,8 @@
+from reportlab.lib import colors
+from datetime import datetime
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.pagesizes import letter, landscape
 import csv
 from django.db.models import Sum, F
 from django.utils.timezone import now, timedelta
@@ -128,3 +133,83 @@ def exportar_a_csv(data, nombre_archivo):
             writer = csv.DictWriter(f, fieldnames=keys)
             writer.writeheader()
             writer.writerows(data)
+
+
+def generar_factura_pdf(nombre_archivo, empresa, rfc, direccion, telefono, reporte):
+    """
+    Genera un PDF tipo factura de gastos con información fiscal y un reporte en tabla.
+
+    Args:
+        nombre_archivo (str): Nombre del archivo PDF a generar.
+        empresa (str): Nombre de la empresa.
+        rfc (str): RFC de la empresa.
+        direccion (str): Dirección fiscal de la empresa.
+        telefono (str): Teléfono de la empresa.
+        reporte (list[dict]): Lista de reportes en formato de diccionario.
+    """
+    doc = SimpleDocTemplate(nombre_archivo, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+
+    # Encabezado de la factura
+    encabezado = f"""
+    <b>{empresa}</b><br/>
+    RFC: {rfc}<br/>
+    Dirección: {direccion}<br/>
+    Teléfono: {telefono}<br/>
+    Fecha: {datetime.now().strftime('%d/%m/%Y')}<br/>
+    """
+    elements.append(Paragraph(encabezado, styles['Normal']))
+
+    # Espacio
+    elements.append(Paragraph("<br/>", styles['Normal']))
+
+    # Título del reporte
+    elements.append(
+        Paragraph("<b>Reporte de Ingresos</b>", styles['Heading2']))
+    elements.append(Paragraph("<br/>", styles['Normal']))
+
+    # Crear tabla a partir del reporte
+    # Encabezados de la tabla
+    encabezados = ['Tipo de Pago', 'Total Ingresos']
+    datos = [encabezados]
+
+    # Agregar los datos del reporte a la tabla
+    for fila in reporte:
+        datos.append([fila['Tipo de Pago'], f"${fila['Total Ingresos']:,.2f}"])
+
+    # Crear tabla
+    tabla = Table(datos)
+    tabla.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+
+    # Agregar tabla al documento
+    elements.append(tabla)
+
+    # Construir el PDF
+    doc.build(elements)
+
+
+# Información de ejemplo
+empresa = "Empresa Genérica S.A. de C.V."
+rfc = "GENERIC123456XYZ"
+direccion = "Calle Falsa 123, Ciudad, País"
+telefono = "+52 55 1234 5678"
+
+# Ejemplo de reporte
+reporte = [
+    {'Tipo de Pago': 'Efectivo', 'Total Ingresos': 1500},
+    {'Tipo de Pago': 'Tarjeta', 'Total Ingresos': 2500},
+    {'Tipo de Pago': 'Gran Total', 'Total Ingresos': 4000},
+]
+
+# Generar PDF
+generar_factura_pdf("factura_reporte.pdf", empresa,
+                    rfc, direccion, telefono, reporte)
