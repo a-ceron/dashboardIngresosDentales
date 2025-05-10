@@ -1,88 +1,160 @@
 {% extends "layouts/base.html" %}
 {% load static %}
 
-{% block title %}Charts{% endblock title %}
+{% block title %}Income Charts{% endblock title %}
 
 {% block content %}
-    <!-- [ Main Content ] start -->
     <div class="pc-container">
-      <div class="pc-content">
-        <!-- [ breadcrumb ] start -->
-        <div class="page-header">
-          <div class="page-block">
-            <div class="row align-items-center">
-              <div class="col-md-12">
-                <div class="page-header-title">
-                  <h5 class="mb-0">Charts</h5>
+        <div class="pc-content">
+            <div class="page-header">
+                <div class="page-block">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <div class="page-header-title">
+                                <h5 class="mb-0">Income Charts</h5>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <ul class="breadcrumb mb-0">
+                                <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                                <li class="breadcrumb-item" aria-current="page">Income Charts</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-md-12">
-                <ul class="breadcrumb mb-0">
-                  <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
-                  <li class="breadcrumb-item" aria-current="page">Charts</li>
-                </ul>
-              </div>
             </div>
-          </div>
-        </div>
-        <!-- [ breadcrumb ] end -->
 
-        <!-- [ Main Content ] start -->
-        <div class="row">
-          <!-- [ Bar Chart ] start -->
-          <div class="col-sm-12 col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h5>Bar Chart</h5>
-              </div>
-              <div class="card-body text-center">
-                <div id="bar-chart"></div>
-              </div>
-            </div>
-          </div>
-          <!-- [ Bar Chart ] end -->
+            <div class="row">
+                <!-- Daily Total Income - Scatter Plot -->
+                <div class="col-sm-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header"><h5>Total Diario</h5></div>
+                        <div class="card-body text-center">
+                            <div id="daily-total-scatter"></div>
+                        </div>
+                    </div>
+                </div>
 
-          <!-- [ Pie Chart ] start -->
-          <div class="col-sm-12 col-md-6">
-            <div class="card">
-              <div class="card-header">
-                <h5>Pie Chart</h5>
-              </div>
-              <div class="card-body text-center">
-                <div id="pie-chart"></div>
-              </div>
+                <!-- Procedure Count - Bar Chart -->
+                <div class="col-sm-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header"><h5>Procedimientos por Cantidad</h5></div>
+                        <div class="card-body text-center">
+                            <div id="procedure-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Income by Payment Type - Pie Chart -->
+                <div class="col-sm-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header"><h5>Ingresos Mensuales por Tipo de Pago</h5></div>
+                        <div class="card-body text-center">
+                            <div id="monthly-income-pie"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Monthly Total Income - Line Chart -->
+                <div class="col-sm-12 col-md-6">
+                    <div class="card">
+                        <div class="card-header"><h5>Ingresos Totales Mensuales</h5></div>
+                        <div class="card-body text-center">
+                            <div id="monthly-total-line"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dentist Income by Payment Type - Stacked Bar Chart -->
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-header"><h5>Ingresos por Dentista y Tipo de Pago</h5></div>
+                        <div class="card-body text-center">
+                            <div id="dentist-income-stacked-bar"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <!-- [ Pie Chart ] end -->
         </div>
-        <!-- [ Main Content ] end -->
-      </div>
     </div>
 {% endblock content %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-    var products = JSON.parse('{{ products|escapejs }}');
-    var names = products.map(p => p.fields.name);
-    var prices = products.map(p => p.fields.price);
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hacer una solicitud GET a la API para obtener los datos dinámicos
+        fetch("/charts/income-data/")
+            .then(response => response.json())
+            .then(data => {
+                const dailyTotals = data.daily_totals.map(item => [new Date(item.date).getTime(), parseInt(item.total)]);
+                
+                const procedureCounts = data.procedure_counts.map(item => ({
+                    name: item.procedure__name,
+                    count: parseInt(item.count)
+                }));
 
-    var barOptions = {
-      chart: { type: 'bar', height: 350 },
-      series: [{ name: 'Price', data: prices }],
-      xaxis: { categories: names }
-    };
-    var barChart = new ApexCharts(document.querySelector("#bar-chart"), barOptions);
-    barChart.render();
+                const monthlyTotals = data.monthly_totals.map(item => [new Date(item.month).getTime(), parseInt(item.total)]);
 
-    var pieOptions = {
-      chart: { type: 'pie', height: 350 },
-      series: prices,
-      labels: names
-    };
-    var pieChart = new ApexCharts(document.querySelector("#pie-chart"), pieOptions);
-    pieChart.render();
-  });
+                const monthlyByType = data.monthly_by_type.map(item => ({
+                    label: item.was_paid,
+                    value: parseInt(item.total)
+                }));
+
+                const dentistByType = data.dentist_by_type.reduce((acc, item) => {
+                    if (!acc[item.dentist__first_name]) {
+                        acc[item.dentist__first_name] = {};
+                    }
+                    acc[item.dentist__first_name][item.was_paid] = parseInt(item.total);
+                    return acc;
+                }, {});
+
+                // Gráfica de puntos: Total Diario
+                new ApexCharts(document.querySelector("#daily-total-scatter"), {
+                    chart: { type: 'scatter', height: 350 },
+                    series: [{ name: "Total Diario", data: dailyTotals }],
+                    xaxis: { type: 'datetime' }
+                }).render();
+
+                // Gráfica de barras: Procedimientos por Cantidad
+                new ApexCharts(document.querySelector("#procedure-bar"), {
+                    chart: { type: 'bar', height: 350 },
+                    series: [{
+                        name: "Procedimientos",
+                        data: procedureCounts.map(item => item.count)
+                    }],
+                    xaxis: { categories: procedureCounts.map(item => item.name) }
+                }).render();
+
+                // Gráfica de pastel: Ingresos Mensuales por Tipo de Pago
+                new ApexCharts(document.querySelector("#monthly-income-pie"), {
+                    chart: { type: 'pie', height: 350 },
+                    series: monthlyByType.map(item => item.value),
+                    labels: monthlyByType.map(item => item.label)
+                }).render();
+
+                // Gráfica de línea: Totales Mensuales
+                new ApexCharts(document.querySelector("#monthly-total-line"), {
+                    chart: { type: 'line', height: 350 },
+                    series: [{ name: "Ingresos Totales", data: monthlyTotals }],
+                    xaxis: { type: 'datetime' }
+                }).render();
+
+                // Gráfica de barras apiladas: Ingresos por Dentista y Tipo de Pago
+                const stackedData = Object.keys(dentistByType).map(dentist => {
+                    return {
+                        name: dentist,
+                        data: ['cash', 'credit', 'debit', 'transfer'].map(paymentType => dentistByType[dentist][paymentType] || 0)
+                    };
+                });
+
+                new ApexCharts(document.querySelector("#dentist-income-stacked-bar"), {
+                    chart: { type: 'bar', height: 350, stacked: true },
+                    series: stackedData,
+                    xaxis: { categories: ['cash', 'credit', 'debit', 'transfer'] }
+                }).render();
+            })
+            .catch(error => console.error("Error al obtener los datos: ", error));
+    });
 </script>
 {% endblock extra_js %}
