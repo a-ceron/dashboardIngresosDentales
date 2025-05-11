@@ -1,0 +1,66 @@
+{% extends "layouts/base.html" %}
+{% load static %}
+
+{% block content %}
+
+  <!-- [ Main Content ] start -->
+  <div class="pc-container">
+    <div class="pc-content">
+      <!-- [ breadcrumb ] start -->
+      <div class="page-header">
+        <div class="page-block">
+          <div class="row align-items-center">
+            <div class="col-md-12">
+              <div class="page-header-title">
+                <h5 class="mb-0">{{ dentist.name }}'s Profile</h5>
+              </div>
+            </div>
+            <div class="col-md-12">
+              <ul class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                <li class="breadcrumb-item"><a>Dentists</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ dentist.name }}'s Profile</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- [ breadcrumb ] end -->
+
+      <!-- [ Profile Section ] start -->
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5>Profile Picture</h5>
+            </div>
+            <div class="card-body text-center">
+              <img class="rounded-circle" src="{% static dentist.avatar %}" alt="Profile Picture" style="width: 150px; height: 150px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h5>{{ dentist.name }}'s Information</h5>
+            </div>
+            <div class="card-body">
+              <ul class="list-unstyled">
+                <li><strong>Level:</strong> {{ dentist.level }}</li>
+                <li><strong>Email:</strong> {{ dentist.email }}</li>
+                <li><strong>Phone:</strong> {{ dentist.phone }}</li>
+                <li><strong>Birthday:</strong> {% if dentist.birthday %} {{ dentist.birthday }} {% else %} No data available {% endif %}</li>
+                <li><strong>Days until Birthday:</strong> {% if dentist.days_until_birthday %} {{ dentist.days_until_birthday }} days {% else %} No birthday data {% endif %}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- [ Profile Section ] end -->
+
+    </div>
+  </div>
+  <!-- [ Main Content ] end -->
+
+{% endblock content %}
